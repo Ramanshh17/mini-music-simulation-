@@ -1,0 +1,190 @@
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Scanner;
+import java.util.Random;
+// Define a class to represent songs
+class Song {
+ private String title;
+ private String artist;
+ private int duration;
+ // Constructor to initialize song properties
+ public Song(String title, String artist, int duration) {
+ this.title = title;
+ this.artist = artist;
+ this.duration = duration;
+ }
+ public String getTitle() {
+ return title;
+ }
+ public String getArtist() {
+ return artist;
+ }
+ public int getDuration() {
+ return duration;
+ }
+ @Override
+ public String toString() {
+ return title + " by " + artist + " [" + duration + "s]";
+ }
+}
+// Define a class to manage the user's playlist
+class Playlist {
+ private List<Song> songs = new LinkedList<>();
+ public void addSong(Song song) {
+ songs.add(song);
+ }
+ public Song findSongByTitle(String title) {
+ for (Song song : songs) {
+ if (song.getTitle().equalsIgnoreCase(title)) {
+ return song;
+ }
+ }
+ return null;
+ }
+ public List<Song> getSongs() {
+ return songs; // Add this method to retrieve the list of songs
+ }
+ public void displaySongs() {
+ int position = 1;
+ for (Song song : songs) {
+ System.out.println(position + ". " + song);
+ position++;
+ }
+ }
+}
+// Define a class to manage the song queue
+class Queue {
+ private LinkedList<Song> queue = new LinkedList<>();
+ private String playbackMode = "Repeat All";
+ public void addSongToQueue(Song song) {
+ queue.add(song);
+ }
+ public void removeSongFromQueue(int position) {
+ if (position >= 1 && position <= queue.size()) {
+ queue.remove(position - 1);
+ }
+ }
+ public void setPlaybackMode(String mode) {
+ playbackMode = mode;
+ }
+ public void playNextSong() {
+ if (queue.isEmpty()) {
+ System.out.println("Queue is empty. Add songs to the queue.");
+ } else {
+ System.out.println("Now Playing: " + queue.getFirst());
+ if (playbackMode.equals("Repeat All")) {
+ queue.addLast(queue.removeFirst());
+ } else if (playbackMode.equals("Shuffle")) {
+ Random random = new Random();
+ int randomIndex = random.nextInt(queue.size());
+ queue.addLast(queue.remove(randomIndex));
+ }
+ }
+ }
+ public void displayQueue() {
+ int position = 1;
+ for (Song song : queue) {
+ System.out.println(position + ". " + song);
+ position++;
+ }
+ }
+}
+// Main class to interact with the user
+public class MiniMusicPlayer {
+ public static void main(String[] args) {
+ Scanner scanner = new Scanner(System.in);
+ Playlist playlist = new Playlist();
+ Queue queue = new Queue();
+ while (true) {
+ System.out.println("\nMini Music Player Menu:");
+ System.out.println("1. Add Songs to Playlist");
+ System.out.println("2. Create Queue");
+ System.out.println("3. Edit Queue");
+ System.out.println("4. Playback Modes");
+ System.out.println("5. Play Next");
+ System.out.println("6. Exit");
+ System.out.print("Enter your choice: ");
+ int choice = scanner.nextInt();
+ scanner.nextLine();
+ switch (choice) {
+ case 1:
+ // Add songs to the playlist
+ System.out.print("Enter the title of the song: ");
+ String songTitle = scanner.nextLine();
+ System.out.print("Enter the artist: ");
+ String artist = scanner.nextLine();
+ System.out.print("Enter the duration (in seconds): ");
+ int duration = scanner.nextInt();
+ scanner.nextLine(); // Consume the newline
+ Song newSong = new Song(songTitle, artist, duration);
+ playlist.addSong(newSong);
+ System.out.println("Song added to the playlist: " + newSong);
+ break;
+ case 2:
+ // Create a queue
+ queue.displayQueue();
+ System.out.println("Available songs in the playlist:");
+ playlist.displaySongs();
+ System.out.print("Enter keywords for song title search: ");
+ String keywords = scanner.nextLine();
+ String[] keywordArray = keywords.split(" ");
+ for (String keyword : keywordArray) {
+ for (Song song : playlist.getSongs()) {
+ if (song.getTitle().toLowerCase().contains(keyword.toLowerCase())) {
+ queue.addSongToQueue(song);
+ System.out.println("Added to queue: " + song);
+ }
+ }
+ }
+ break;
+ case 3:
+ // Edit the queue
+ System.out.println("Queue:");
+ queue.displayQueue();
+ System.out.print("Enter the position of the song to remove: ");
+ int positionToRemove = scanner.nextInt();
+ scanner.nextLine(); // Consume the newline
+ queue.removeSongFromQueue(positionToRemove);
+ System.out.println("Song removed from the queue.");
+ break;
+ case 4:
+ // Set playback modes
+ System.out.println("Available playback modes:");
+ System.out.println("1. Repeat One");
+ System.out.println("2. Repeat All");
+ System.out.println("3. Shuffle");
+ System.out.print("Enter the playback mode (1/2/3): ");
+ int playbackModeChoice = scanner.nextInt();
+ scanner.nextLine(); // Consume the newline
+ switch (playbackModeChoice) {
+ case 1:
+ queue.setPlaybackMode("Repeat One");
+ break;
+ case 2:
+ queue.setPlaybackMode("Repeat All");
+ break;
+ case 3:
+ queue.setPlaybackMode("Shuffle");
+ break;
+ default:
+ System.out.println("Invalid choice. Using the default mode: Repeat 
+All.");
+ queue.setPlaybackMode("Repeat All");
+ break;
+ }
+ break;
+ case 5:
+ // Play the next song
+ queue.playNextSong();
+ break;
+ case 6:
+ // Exit the program
+ System.out.println("Exiting Mini Music Player.");
+ scanner.close();
+ System.exit(0);
+ default:
+ System.out.println("Invalid choice. Please try again.");
+ }
+ }
+ }
+}
